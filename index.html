@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WNS Unit-05</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        header {
+            background-color: #0077cc;
+            color: white;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 1.2rem auto;
+            padding: 1rem;
+            background: white;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            color: #0077cc;
+            margin: 1.2rem 0 0.8rem;
+            font-size: 1.25rem;
+        }
+
+        ul {
+            margin: 0.4rem 0 0.7rem 0.7rem;
+            padding-left: 0.7rem;
+        }
+
+        ul ul {
+            margin-left: 0.7rem;
+            padding-left: 0.7rem;
+        }
+
+        li>ul {
+            margin-top: 0.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        strong {
+            font-weight: 600;
+        }
+
+        .code-label {
+            background: #e0e0e0;
+            padding: 4px 10px;
+            display: inline-block;
+            font-weight: bold;
+            color: #000;
+            border-radius: 6px 6px 0 0;
+            margin-left: 1rem;
+            font-size: 0.95rem;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 0 6px 6px 6px;
+            overflow-x: auto;
+            margin: -6px 0 0.6rem 1rem;
+            font-size: 0.95rem;
+            border: 1px solid #ddd;
+        }
+
+        .output {
+            margin: 0 0 0 1.2rem;
+            padding: 0.45rem 0.8rem;
+            font-size: 1rem;
+            background: #f8f8fa;
+            border-radius: 4px;
+            border-left: 3px solid #50aaff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.7rem;
+            }
+
+            h2 {
+                font-size: 1.13rem;
+                margin-top: 1rem;
+            }
+
+            .code-label,
+            pre {
+                margin-left: 0.5rem;
+                font-size: 0.87rem;
+            }
+
+            .output {
+                margin-left: 0.6rem;
+                font-size: 0.96rem;
+                padding: 0.36rem 0.6rem;
+            }
+
+            th,
+            td {
+                padding: 0.6rem;
+            }
+
+            /* Ensure the responsive wrapper works well on narrow viewports */
+            .table-responsive table {
+                min-width: 520px;
+            }
+
+            .table-responsive {
+                margin-bottom: 1rem;
+            }
+        }
+
+        @media print {
+            .container {
+                page-break-after: always;
+            }
+
+        }
+
+        @media (max-width: 480px) {
+
+            ul,
+            ul ul {
+                margin-left: 0.46rem !important;
+                padding-left: 0.5rem !important;
+            }
+        }
+
+        img {
+            display: block;
+            max-width: 58%;
+            height: auto;
+            max-height: 270px;
+            object-fit: contain;
+            margin: 1rem auto;
+            border-radius: 6px;
+            cursor: zoom-in;
+            transition: transform 0.2s ease;
+            border: 1px solid #ddd;
+        }
+
+        img:hover {
+            transform: scale(1.04);
+        }
+
+        #lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(6px);
+        }
+
+        #lightbox.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #lightbox img {
+            max-width: 88%;
+            max-height: 88%;
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
+            transform: scale(0.85);
+            transition: transform 0.3s ease;
+            cursor: zoom-out;
+        }
+
+        #lightbox.active img {
+            transform: scale(1);
+        }
+
+        #image-tip {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 119, 204, 0.96);
+            color: #fff;
+            padding: 0.7rem 1.1rem;
+            border-radius: 6px;
+            font-size: 0.92rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease;
+            white-space: nowrap;
+        }
+
+        #image-tip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 480px) {
+            #image-tip {
+                font-size: 0.85rem;
+                padding: 0.6rem 1rem;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            background: transparent;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 0.8rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #0077cc;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e6f0ff;
+        }
+
+        /* Make tables horizontally scrollable on small screens instead of restructuring into blocks.
+   This preserves semantics and improves readability. */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+
+        /* optional minimum width so complex tables remain readable on desktop and can scroll on mobile */
+        .table-responsive table {
+            min-width: 640px;
+            /* adjust as needed */
+        }
+    </style>
+
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>1) Enterprise WLAN Vs SOHO WLAN</strong></h2>
+      <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse;">
+
+    <tr>
+        <th>Enterprise WLAN</th>
+        <th>SOHO WLAN</th>
+    </tr>
+
+    <tr>
+        <td>Enterprise WLAN stands for Enterprise Wireless Local Area Network</td>
+        <td>SOHO WLAN stands for Small Office Home Office WLAN</td>
+    </tr>
+
+    <tr>
+        <td>High cost</td>
+        <td>Low Cost</td>
+    </tr>
+
+    <tr>
+        <td>Complex to Manage</td>
+        <td>Easy to Manage</td>
+    </tr>
+
+    <tr>
+        <td>High Scalability</td>
+        <td>Low Scalability</td>
+    </tr>
+
+    <tr>
+        <td>High-Level Security</td>
+        <td>Low-Level Security</td>
+    </tr>
+
+    <tr>
+        <td>It provides security through VPN, SSH</td>
+        <td>It provides security through WEP, Firewalls</td>
+    </tr>
+
+    <tr>
+        <td>
+            <img src="WhatsApp Image 2025-11-22 at 20.32.04_ff1dba02.jpg" style="width:100%; max-width:300px;" />
+        </td>
+        <td>
+            <img src="IMG-20251122-WA0014.jpg" style="width:100%; max-width:300px;" />
+        </td>
+    </tr>
+
+</table>
+
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>2) wireless LAN — Security Considerations</strong></h2>
+        <p>It mainly focuses on three layers:</p>
+        <ul class="i">
+            <li>Physical Layer Security
+                <ul>
+                    <li>In this layer, it stops outsiders from connecting to the wireless network.</li>
+                    <li>Uses shielding materials to reduce the strength of the signal.</li>
+                    <li>RF Coverage Area:
+                        <ul>
+                            <li>It ensures that the network signals cover only the right area.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>Network Layer Security
+                <ul>
+                    <li>In this layer, it protects the wireless network from attackers.</li>
+                    <li>It uses protocols like WPA2 and WPA3.</li>
+                    <li>It uses 802.1X authentication and VPN for remote users.</li>
+                </ul>
+            </li>
+            <li>Application Layer Security
+                <ul>
+                    <li>In this layer, it keeps the data safe and ensures that only authorized users can access the
+                        application.</li>
+                    <li>It uses protocols like HTTPS, SFTP, and SSH.</li>
+                    <li>It uses SSL/TLS and VPN to encrypt the data.</li>
+                </ul>
+            </li>
+            <li>VPN Tunnelling:
+                <ul>
+                    <li>The process of transmitting the data securely from a VPN Client to a VPN Server through a tunnel
+                        is called as VPN Tunnelling</li>
+                </ul>
+            </li>
+            <li>Encryption:
+                <ul>
+                    <li>The process of converting plaintext to ciphertext by using a cryptographic algorithm is called
+                        as Encryption.</li>
+                </ul>
+            </li>
+            <li>Authentication:
+                <ul>
+                    <li>The process of verifying the identity of a user or device is called as Authentication.</li>
+                    <li>Only authorized users can access the data.</li>
+                </ul>
+            </li>
+            </ol>
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>3) VPN Tunnelling</strong></h2>
+        <ul class="i">
+            <li>The process of transmitting the data securely from a VPN Client to a VPN Server through a tunnel is
+                called as VPN Tunnelling</li>
+                <img src="What-is-a-VPN-tunnel-and-how-does-it-work.jpg"/>
+            <li>Uses of VPN Tunnelling:
+                <ul>
+                    <li>It provides Security</li>
+                    <li>It provides secure communication</li>
+                    <li>It provides Encryption</li>
+                    <li>It prevents attacks from Man-In-The-Middle attacks, DOS attacks and eavesdropping</li>
+                </ul>
+            </li>
+            </ol>
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>4) Enterprise Point-to-Point Configuration(P2P Configuration)</strong></h2>
+        <ul class="i">
+            <li>Enterprise Point-to-Point Configuration is used to connect buildings by using wireless technologies
+                instead of physical cables</li>
+            <ul class="i">
+                <img src="WhatsApp Image 2025-11-22 at 20.56.31_fdbadd47.jpg"/>
+                <li>LAN:
+                    <ul>
+                        <li>LAN stands for Local Area Network</li>
+                        <li>LAN provides a network to the buildings</li>
+                    </ul>
+                </li>
+                <li>Wireless Bridge:
+                    <ul>
+                        <li>Install a wireless Bridge to the Buildings that connects to the LAN</li>
+                    </ul>
+                </li>
+                <li>Configuration:
+                    <ul>
+                        <li>Set SSID for P2P Configuration</li>
+                        <li>Connect the Wireless Bridge to the P2P link</li>
+                    </ul>
+                </li>
+                <li>Antenna:
+                    <ul>
+                        <li>Place the Antenna correctly for a strong RF link</li>
+                    </ul>
+                </li>
+            </ul>
+        </ul>
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>5) Retail and Manufacturing Design</strong></h2>
+        <p>Roaming Agent and Kiosk devices are a wireless network architecture used in Retail and Manufacturing Design
+        </p>
+        <ul class="i">
+            <li>Servers:
+                <ul>
+                    <li>They provide services like DNS, DHCP, Logging and Applications</li>
+                </ul>
+            </li>
+            <li>Firewall:
+                <ul>
+                    <li>Protects the Network from unwanted traffic</li>
+                </ul>
+            </li>
+            <li>VPN Gateway:
+                <ul>
+                    <li>It provides secure communication between access points and the server</li>
+                </ul>
+            </li>
+            <li>Access Points:
+                <ul>
+                    <li>It acts as a bridge between wired and wireless networks</li>
+                </ul>
+            </li>
+            <li>Roaming Agents:
+                <ul>
+                    <li>Roaming Agents are PDA with Scanners</li>
+                </ul>
+            </li>
+            <li>Kiosk devices:
+                <ul>
+                    <li>Kiosk devices are PDA with Printers</li>
+                </ul>
+                <img src="IMG-20251122-WA0015.jpg"/>
+            </li>
+            </ol>
+            <h3>Advantages: </h3>
+            <ul>
+                <li>They provide security</li>
+                <li>They provide secure communication</li>
+                <li>Simplicity</li>
+                <li>Mobility</li>
+            </ul>
+
+            <h3>Disadvantages:</h3>
+            <ul>
+                <li>Uses Old Security models like WEP</li>
+                <li>It requires backend servers; failure in that server affects the entire system</li>
+                <li>Not easy to maintain</li>
+            </ul>
+
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>6) Warehouse Design</strong></h2>
+        <ul class="i">
+            <li>Servers:
+                <ul>
+                    <li>They provide services like DNS, DHCP, Logging and Applications</li>
+                </ul>
+            </li>
+            <li>Firewall:
+                <ul>
+                    <li>Protects the Network from unwanted traffic</li>
+                </ul>
+            </li>
+            <li>VPN Gateway:
+                <ul>
+                    <li>It provides secure communication between access points and the server</li>
+                </ul>
+            </li>
+            <li>Access Points:
+                <ul>
+                    <li>It acts as a bridge between wired and wireless networks</li>
+                </ul>
+            </li>
+            <li>PDA/Device:
+                <ul>
+                    <li>PDA stands for Personal Digital Assistant</li>
+                </ul>
+                <img src="IMG-20251122-WA0016.jpg"/>
+            </li>
+            </ol>
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>7) RF-Containment</strong></h2>
+        <ul class="i">
+            <li>It stops outsiders from connecting to the wireless Network.</li>
+            <li>Uses shielding materials to reduce the strength of the signal.</li>
+            <li>RF-Coverage Area ensures that the network signals cover only the right area.</li>
+            <li>It prevents the leakage of signals from the outside</li>
+            <ul>
+                <li>Servers:
+                    <ul>
+                        <li>They provide services like DNS, DHCP, Logging and Applications</li>
+                    </ul>
+                </li>
+                <li>Firewall:
+                    <ul>
+                        <li>Protects the Network from unwanted traffic</li>
+                    </ul>
+                </li>
+                <li>VPN Gateway:
+                    <ul>
+                        <li>It provides secure communication between access points and the server</li>
+                    </ul>
+                </li>
+                <li>Access Points:
+                    <ul>
+                        <li>It acts as a bridge between wired and wireless networks</li>
+                    </ul>
+                </li>
+                <img src="IMG-20251122-WA0017.jpg"/>
+            </ul>
+
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>8) Intrusion Detection Systems (IDS)</strong></h2>
+        <ul>
+            <li>IDS stands for Intrusion Detection Systems</li>
+            <li>IDS is a Security tool used to detect and react to security attacks</li>
+            <li>Types of IDS:
+                <ul>
+                    <li>There are mainly two types of IDS. They are:
+                        <ol class="i">
+                            <li>HIDS</li>
+                            <li>NIDS</li>
+                        </ol>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+            <ol class="i">
+                <li>HIDS:
+                    <ul>
+                        <li>HIDS stands for Host-Based IDS</li>
+                        <li>It is installed on individual computers</li>
+                        <li>HIDS may reduce the system Performance</li>
+                    </ul>
+                </li>
+                <li>NIDS:
+                    <ul>
+                        <li>NIDS stands for Network-Based IDS</li>
+                        <li>It monitors the Network traffic</li>
+                        <li>NIDS is used for enterprise networks</li>
+                    </ul>
+                </li>
+        </ol>
+<ul>
+       <li>Servers:
+            <ul>
+                <li>They provide services like DNS, DHCP, Logging and Applications</li>
+            </ul>
+        </li>
+        <li>Firewall:
+            <ul>
+                <li>Protects the Network from unwanted traffic</li>
+            </ul>
+        </li>
+        <li>VPN Gateway:
+            <ul>
+                <li>It provides secure communication between access points and the server</li>
+            </ul>
+        </li>
+        <li>Access Points:
+            <ul>
+                <li>It acts as a bridge between wired and wireless networks</li>
+            </ul>
+        </li>
+        <li>PDA/Device:
+            <ul>
+                <li>PDA stands for Personal Digital Assistant</li>
+            </ul>
+        </li>
+        <h3>Note:</h3>
+            <ul>
+                <li>IDS do not give a guarantee to prevent all types of attacks</li>
+                <li>But it gives a guarantee to detect all types of attacks</li>
+            </ul>
+            <img src="IMG-20251122-WA0018.jpg"/>
+</ul>
+ 
+
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>9) Enterprise Design 1 Model</strong></h2>
+        <ul class="i">
+            <li>Users don't directly connect to the Internal Network</li>
+            <li>Users connect to the Internal Network through VPN Connection</li>
+
+
+<ul>
+            <li>Servers:
+                <ul>
+                    <li>They provide services like DNS, DHCP, Logging and Applications</li>
+                </ul>
+            </li>
+            <li>Firewall:
+                <ul>
+                    <li>Protects the Network from unwanted traffic</li>
+                </ul>
+            </li>
+            <li>VPN Gateway:
+                <ul>
+                    <li>It provides secure communication between access points and the server</li>
+                </ul>
+            </li>
+            <li>Access Points:
+                <ul>
+                    <li>It acts as a bridge between wired and wireless networks</li>
+                </ul>
+            </li>
+            <li>PDA/Device:
+                <ul>
+                    <li>PDA stands for Personal Digital Assistant</li>
+                </ul>
+            </li>
+            </ul>      
+        <img src="IMG-20251122-WA0019.jpg"/>  </ul>
+    </div>
+
+    <header><strong>WNS Unit-05</strong></header>
+    <div class="container">
+        <h2><strong>10) 802.1x Implementation</strong></h2>
+        <ul class="i">
+            <li>802.1x is a port-based network access control method</li>
+            <li>It verifies the client before they use the Internet</li>
+            <li>It provides Security by using:
+                <ol class="a">
+                    <li>EAP(Extensible Authentication Protocol)</li>
+                    <li>RADIUS Server</li>
+                </ol>
+            </li>
+            <ul>
+       <li>Servers:
+                <ul>
+                    <li>They provide services like DNS, DHCP, Logging and Applications</li>
+                </ul>
+            </li>
+            <li>Firewall:
+                <ul>
+                    <li>Protects the Network from unwanted traffic</li>
+                </ul>
+            </li>
+            <li>Access Points:
+                <ul>
+                    <li>It acts as a bridge between wired and wireless networks</li>
+                </ul>
+            </li>
+            <li>PDA/Device:
+                <ul>
+                    <li>PDA stands for Personal Digital Assistant</li>
+                </ul>
+            </li>
+            </ul>
+     <img src="IMG-20251122-WA0020.jpg"/>
+        </ol>
+    </div>
+
+    <div id="lightbox">
+        <img id="lightbox-img" src="" alt="Enlarged view">
+    </div>
+
+    <div id="image-tip">Click image to enlarge</div>
+
+    <script>
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightbox-img");
+
+        document.querySelectorAll("img").forEach(img => {
+            img.addEventListener("click", () => {
+                lightboxImg.src = img.src;
+                lightbox.classList.add("active");
+            });
+        });
+
+        lightbox.addEventListener("click", () => {
+            lightbox.classList.remove("active");
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const tip = document.getElementById("image-tip");
+            if (tip) {
+                tip.classList.add("show");
+                setTimeout(() => tip.classList.remove("show"), 5000);
+            }
+        });
+    </script>
+
+    </body>
+
+</html>
